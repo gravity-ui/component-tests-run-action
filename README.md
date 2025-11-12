@@ -13,9 +13,12 @@ The version of the container **must** match Playwright version used in project
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
 | `pr` | PR id used for creating unique URL | No | Auto-detected from workflow event |
-| `node-version` | Node.js version used for running tests | No | `22` |
+| `node-version` | Node.js version used for running tests | No | - |
+| `node-version-file` | Path to Node.js version file for determining the version to use | No | - |
 | `command` | Command to run tests | No | `npx --no-install playwright test` |
 | `report-path` | Path to Playwright report directory | No | `playwright-report` |
+
+Note: node version determinition rules are same with setup-node action. See [setup-node docs](https://github.com/actions/setup-node?tab=readme-ov-file#usage) for more info
 
 ## Outputs
 
@@ -88,4 +91,14 @@ Specify a different Node.js version:
 - uses: gravity-ui/component-tests-run-action@v1
   with:
     node-version: '20'
+```
+
+### Custom Node Version File
+
+Specify a different Node.js version:
+
+```yaml
+- uses: gravity-ui/component-tests-run-action@v1
+  with:
+    node-version-file: '.nvmrc'
 ```

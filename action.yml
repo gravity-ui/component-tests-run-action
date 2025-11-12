@@ -9,7 +9,9 @@ inputs:
   node-version:
     description: Node.js version used for running tests
     required: false
-    default: '22'
+  node-version-file:
+    description: Path to Node.js version file for determining the version to use
+    required: false
   command:
     description: Command to run tests
     required: true
@@ -22,11 +24,12 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v5
+    - uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
-        cache: npm
+        node-version-file: ${{ inputs.node-version-file }}
+        cache: 'npm'
     - name: Install Packages
       run: npm ci
       shell: bash
