@@ -1,0 +1,62 @@
+name: component-tests-run-action
+
+description: Runs Playwright component tests and stores report into workflow artifacts
+
+inputs:
+  pr:
+    description: PR id used for creating unique URL
+    required: false
+  node-version:
+    description: Node.js version used for running tests
+    required: false
+  node-version-file:
+    description: Path to Node.js version file for determining the version to use
+    required: false
+  command:
+    description: Command to run tests
+    required: true
+    default: 'npx --no-install playwright test'
+  report-path:
+    description: Path to Playwright report directory
+    required: false
+    default: 'playwright-report'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v5
+    - uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+        node-version-file: ${{ inputs.node-version-file }}
+        cache: 'npm'
+    - name: Install Packages
+      run: npm ci
+      shell: bash
+    - name: Run Tests
+      run: ${{ inputs.command }}
+      shell: bash
+      env:
+        CI: 'true'
+    - name: Upload Playwright Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: ${{ inputs.report-path }}
+        retention-days: 1
+    - name: Save PR ID
+      if: always()
+      run: |
+        pr="${{ inputs.pr }}"
+        if [[ -z "$pr" ]]; then
+          pr="${{ github.event.pull_request.number }}"
+        fi
+        echo $pr > ./pr-id.txt
+      shell: bash
+    - name: Create PR Artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: pr
+        path: ./pr-id.txt
